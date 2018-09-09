@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(flash());
 
 app.use(session({ cookie: { maxAge: 60000 },
+	          key: 'jaejin',
                   secret: 'jaejin',
                   resave: false,
                   saveUninitialized: false}));
@@ -110,16 +111,16 @@ app.get('/login',function(req, res){
 
 });
 
-app.get('/logout', function (req, res) {
-  jsalert.alert("logout.");
-  req.logout();
-  res.redirect('/login');
-});
 
 app.get('/', function(req,res){
-  res.render('main',{
+	var id = req.session.user_id;
+	res.render('main',{'user_id': id});
+})
 
-  })
+app.get('/logout', function(req, res){
+	req.session = null;
+	res.clearCookie('jaejin');
+	res.render('logout',{});
 })
 
 app.post('/', function(req,res){
@@ -160,6 +161,11 @@ app.post('/signup_ok', function(req, res){
   res.render('signup_ok_private', {data: private_key});
 });
 
+app.post('/list', function(req, res){
+	var id = req.body.id;
+	res.render('list',{'id': id});
+});
+
 app.post('/login', function(req, res){
 	var id = req.body.id;
 	var pw = req.body.pw;
@@ -177,7 +183,8 @@ app.post('/login', function(req, res){
 				console.log(result);
 				if (result == true){
 					console.log('login success');
-					res.render('login_success', {'id':id});
+					req.session.user_id = id;
+					res.render('login_success');
 				}else{
 					console.log('login fail');
 					res.render('login_fail', {});
