@@ -175,7 +175,7 @@ app.post('/login', function(req, res){
 	var hex = web3.toHex(id+pw);
 	var address = web3.personal.ecRecover(hex, private_key, function(error, result){
 		if(!error){
-                	console.log('the address of ' + id + 'is '+result);
+                	console.log('the address of ' + id + ' is '+result);
 			
 			Mycontract2.deployed().then(function(instance){
 				return instance.certification(result);
