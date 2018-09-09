@@ -121,11 +121,39 @@ app.get('/', function(req,res){
   })
 })
 
-app.get('/signup', function(req, res){
-  res.render('signup',{
-
-  })
+app.get('/signup', function(req,res){
+	res.render('signup',{})
 })
+
+app.post('/signup_ok', function(req, res){
+  var name = req.body.name;
+  var id = req.body.id;
+  var pw = req.body.pw;
+
+  //create account
+  var user_account = web3.personal.newAccount(jaejin);
+  console.log('account create by'+name)
+  console.log(user_account)
+
+  // string to hex (private key)
+  var hex = web3.toHex(id+pw);
+  var private_key = web3.personal.sign(hex, user_account);
+
+  console.log('start addCandidate(test)');
+  console.log('need miner...');
+  
+  Mycontract2.deployed().then(function(instance){
+	  return instance.addCandidate(user_account, {from: account});
+  }).then(function(result){
+	  console.log(result);
+	  res.render('signup_ok_private', {data: private_key});
+  }).catch(function(err){
+	  console.log(err.message);
+  });
+
+  //res.render('signup_ok_private', {data: private_key});
+});
+
 
 
 var account_test = web3.personal.newAccount(jaejin);
@@ -150,7 +178,7 @@ web3.personal.unlockAccount("0x241530b417837cdcce8036a7b7f095995509d5c9", "wowls
 //web3.eth.personal.sign("Hello world", "0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe", "test password!")
 //web3.eth.personal.ecRecover("Hello world", "0x30755ed65396facf86c53e6217c52b4daebe72aa4941d89635409de4c9c7f9466d4e9aaec7977f05e923889b33c0d0dd27d7226b6e6f56ce737465c5cfd04be400").then(console.log);
 
-
+/*
 
 Mycontract2.deployed().then(function(instance){
 	return instance.get();
@@ -188,19 +216,13 @@ Mycontract2.deployed().then(function(instance){
 }).catch(function(err){
 	console.log(err.message);
 });
-/*
-Mycontract2.deployed().then(function(instance){
-	return instance.certification("jaejin","jaejin",0xc75711ce6897078ffd6af868fda11c8e9f0fc311);
-}).then(function(result){
-	console.log(result);
-});
-*/
+
 Mycontract2.deployed().then(function(instance){
 	return instance.getNumOfCandidates();
 }).then(function(result){
 	console.log(result.toNumber());
 });
-
+*/
 
 
 
