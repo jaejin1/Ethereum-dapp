@@ -92,13 +92,14 @@ passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
+/*
 app.post('/login',passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/loginError',
     failureFlash: true
   }),function(req,res){
 });
-
+*/
 app.get('/loginError', function(req,res){
   res.render('loginError',{})
 });
@@ -119,6 +120,10 @@ app.get('/', function(req,res){
   res.render('main',{
 
   })
+})
+
+app.post('/', function(req,res){
+	res.render('main',{})
 })
 
 app.get('/signup', function(req,res){
@@ -146,16 +151,50 @@ app.post('/signup_ok', function(req, res){
 	  return instance.addCandidate(user_account, {from: account});
   }).then(function(result){
 	  console.log(result);
-	  res.render('signup_ok_private', {data: private_key});
+	  //res.render('signup_ok_private', {data: private_key});
   }).catch(function(err){
 	  console.log(err.message);
   });
-
-  //res.render('signup_ok_private', {data: private_key});
+  
+  //use login possible after mining
+  res.render('signup_ok_private', {data: private_key});
 });
 
+app.post('/login', function(req, res){
+	var id = req.body.id;
+	var pw = req.body.pw;
+	var private_key = req.body.private_key;
 
+	// string to hex (return account)
+	var hex = web3.toHex(id+pw);
+	var address = web3.personal.ecRecover(hex, private_key, function(error, result){
+		if(!error){
+                	console.log('the address of ' + id + 'is '+result);
+			
+			Mycontract2.deployed().then(function(instance){
+				return instance.certification(result);
+			}).then(function(result){
+				console.log(result);
+				if (result == true){
+					console.log('login success');
+					res.render('login_success', {'id':id});
+				}else{
+					console.log('login fail');
+					res.render('login_fail', {});
+				}
+			}).catch(function(err){
+				console.log(err.message);
+				res.render('login_fail', {});
+			});
+		}else{
+			console.error(error);
+		}
+	});
+			
 
+	//var address = web3.personal.ecRecover(
+});
+/*
 var account_test = web3.personal.newAccount(jaejin);
 var account_test2 = web3.personal.newAccount(jaejin);
 console.log(account_test2);
@@ -171,7 +210,7 @@ var address12 = web3.personal.ecRecover(hex2,private_test, function(error, resul
 	else
 		console.error(error);
 });
-
+*/
 web3.personal.unlockAccount("0x241530b417837cdcce8036a7b7f095995509d5c9", "wowls1");
 //console.log(address12);
 
