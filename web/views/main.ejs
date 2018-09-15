@@ -13,7 +13,8 @@
 			<% } %>
 
 			<div>
-				hi <%= user_id %>  <%= numcandidate %>
+				hi <%= user_id %>  
+				your address is <%= user_address %>
 			</div>
 			<div>
 				<button onclick="location.href='logout'">logout </button>
@@ -25,24 +26,29 @@
 			</div>
 		<% } %>
 	</div>
-
-<form action="/vote" method="post" name="vote" id="vote">
-  <ul>
-    <% for (var i = 0; i<numcandidate; i++) { %>
+	<% if(user_id){ %>
+	<form action="/vote" method="post" name="vote" id="vote">
+  	<ul>
+    		<% for (var i = 0; i<numcandidate; i++) { %>
+    			<li>
+			<input type="radio" name="radioTxt" value= <%= numcandidate %>> <%= jaejin[i] %>
+			</li>
+    		<% } %>
     	<li>
-		<input type="radio" name="radioTxt" value= <%= numcandidate %>> asdasdf
-	</li>
-    <% } %>
-    <li>
-      <input type="radio" name="radioTxt" value="Jaejin" checked>재진
-    </li>
-    <li>
-      <input type="radio" name="radioTxt" value="Nayoung">나영
-    </li>
-  </ul>
+      		<input type="radio" name="radioTxt" value="Jaejin" checked>재진
+    	</li>
+    	<li>
+      		<input type="radio" name="radioTxt" value="Nayoung">나영
+    	</li>
+  	</ul>
 
-  <input type="submit" value="Vote!!"/>
-</form>
+  		<input type="submit" value="Vote!!"/>
+	</form>
+	<div>
+		<button onclick="location.href='voted'"> 투표수 확인 </button>
+	</div>
+
+	<% } %>
 
 </body>
 </html>

@@ -8,8 +8,13 @@ var app = express();
 var contract = require("truffle-contract");
 var server = require("http").createServer(app);
 var io = require("socket.io")(server);
+var ArrayList = require("arraylist");
 var Web3 = require("web3");
+
 var MyContractJSON = require("../truffle/build/contracts/Simple.json");
+
+
+var list = new ArrayList;
 
 app.locals.pretty = true;
 app.set('view engine', 'ejs');
@@ -18,7 +23,7 @@ app.set('views', './views');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(flash());
 
-app.use(session({ cookie: { maxAge: 60000 },
+app.use(session({ cookie: { maxAge: 600000 },
 	          key: 'jaejin',
                   secret: 'jaejin',
                   resave: false,
@@ -111,20 +116,51 @@ app.get('/login',function(req, res){
 
 });
 
+app.get('/voted', function(req, res){
+	Mycontract2.deployed().then(function(instance){
+		return instance.getNumOfvoted();
+	}).then(function(result){
+		console.log(result.toNumber());
+		req.session.save(function(){
+			res.render('voted',{voted:result.toNumber()});
+		});
+
+	}).catch(function(err){
+		console.log(err.message);
+	});
+})
 
 app.get('/', function(req,res){
 	var id = req.session.user_id;
+	var address = req.session.user_address;
 
 	Mycontract2.deployed().then(function(instance){
 		return instance.getNumOfcandidate();
 	}).then(function(result){
 		console.log(result.toNumber());
-		res.render('main',{user_id: id, numcandidate:result.toNumber() }); 
+		res.render('main',{user_id: id, user_address:address, numcandidate:result.toNumber(), jaejin:list }); 
 	}).catch(function(err){
 		console.log(err.message);
 	});
 
 
+})
+
+app.post('/vote', function(req, res){
+	var id = req.session.user_id;
+	var address = req.session.user_address;
+	var vote = req.body.radioTxt;
+
+	console.log(address);
+	console.log(vote);
+	Mycontract2.deployed().then(function(instance){
+		return instance.vote(address, vote,{from: account,gas:470000});
+	}).then(function(result){
+		console.log(result);
+	}).catch(function(err){
+		console.log(err.message);
+	});
+	res.render('vote_ok');
 })
 
 app.get('/logout', function(req, res){
@@ -186,6 +222,7 @@ app.post('/login', function(req, res){
 	var address = web3.personal.ecRecover(hex, private_key, function(error, result){
 		if(!error){
                 	console.log('the address of ' + id + ' is '+result);
+			req.session.user_address = result;
 			
 			Mycontract2.deployed().then(function(instance){
 				return instance.certification(result);
@@ -212,6 +249,7 @@ app.post('/login', function(req, res){
 	//var address = web3.personal.ecRecover(
 });
 
+
 app.get('/candidate', function(req, res){
 	res.render('candidate',{});
 });
@@ -227,6 +265,9 @@ app.post('/candidate_ok', function(req,res){
 		return instance.addcandidate(user_account, name , {from: account,gas:470000});
 	}).then(function(result){
 		console.log(result);
+		list.add(name);
+		console.log(list.last());
+		console.log('----');
 	}).catch(function(err){
 		console.log(err.message);
 	});
