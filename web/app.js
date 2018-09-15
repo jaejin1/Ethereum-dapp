@@ -45,7 +45,7 @@ Mycontract2.setProvider(web3.currentProvider);
 
 console.log(network_version);
 
-var account = "0x241530b417837cdcce8036a7b7f095995509d5c9";
+var account = "0x6ea45f74c9803a9c3403c400975424e5825dfb70";
 var jaejin;
 
 
@@ -114,7 +114,17 @@ app.get('/login',function(req, res){
 
 app.get('/', function(req,res){
 	var id = req.session.user_id;
-	res.render('main',{'user_id': id});
+
+	Mycontract2.deployed().then(function(instance){
+		return instance.getNumOfcandidate();
+	}).then(function(result){
+		console.log(result.toNumber());
+		res.render('main',{user_id: id, numcandidate:result.toNumber() }); 
+	}).catch(function(err){
+		console.log(err.message);
+	});
+
+
 })
 
 app.get('/logout', function(req, res){
@@ -149,7 +159,7 @@ app.post('/signup_ok', function(req, res){
   console.log('need miner...');
   
   Mycontract2.deployed().then(function(instance){
-	  return instance.addCandidate(user_account, {from: account});
+	  return instance.addvoter(user_account, {from: account,gas:470000});
   }).then(function(result){
 	  console.log(result);
 	  //res.render('signup_ok_private', {data: private_key});
@@ -201,6 +211,28 @@ app.post('/login', function(req, res){
 
 	//var address = web3.personal.ecRecover(
 });
+
+app.get('/candidate', function(req, res){
+	res.render('candidate',{});
+});
+
+app.post('/candidate_ok', function(req,res){
+	var name = req.body.name;
+	
+	var user_account = web3.personal.newAccount(jaejin);
+	console.log('account create by ' + name);
+	console.log(user_account);
+
+	Mycontract2.deployed().then(function(instance){
+		return instance.addcandidate(user_account, name , {from: account,gas:470000});
+	}).then(function(result){
+		console.log(result);
+	}).catch(function(err){
+		console.log(err.message);
+	});
+
+	res.render('candidate_ok', {});
+});
 /*
 var account_test = web3.personal.newAccount(jaejin);
 var account_test2 = web3.personal.newAccount(jaejin);
@@ -218,7 +250,7 @@ var address12 = web3.personal.ecRecover(hex2,private_test, function(error, resul
 		console.error(error);
 });
 */
-web3.personal.unlockAccount("0x241530b417837cdcce8036a7b7f095995509d5c9", "wowls1");
+web3.personal.unlockAccount("0x6ea45f74c9803a9c3403c400975424e5825dfb70", "wowls1");
 //console.log(address12);
 
 //web3.eth.personal.sign("Hello world", "0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe", "test password!")

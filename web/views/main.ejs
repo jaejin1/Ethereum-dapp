@@ -6,8 +6,14 @@
 <body>
 	<div>
 		<% if(user_id){ %>
+		    	<% if(user_id == 'admin') {%>
+				<div>
+					<button onclick="location.href='candidate'"> add candidate </button>
+				</div>
+			<% } %>
+
 			<div>
-				hi <%= user_id %>
+				hi <%= user_id %>  <%= numcandidate %>
 			</div>
 			<div>
 				<button onclick="location.href='logout'">logout </button>
@@ -22,14 +28,16 @@
 
 <form action="/vote" method="post" name="vote" id="vote">
   <ul>
+    <% for (var i = 0; i<numcandidate; i++) { %>
+    	<li>
+		<input type="radio" name="radioTxt" value= <%= numcandidate %>> asdasdf
+	</li>
+    <% } %>
     <li>
       <input type="radio" name="radioTxt" value="Jaejin" checked>재진
     </li>
     <li>
       <input type="radio" name="radioTxt" value="Nayoung">나영
-    </li>
-    <li>
-      <input type="radio" name="radioTxt" value="Beongku">병구
     </li>
   </ul>
 

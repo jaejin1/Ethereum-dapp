@@ -1,5 +1,5 @@
 pragma solidity ^0.4.11;
-contract Simple{
+contract Vote{
     address User;
     uint256 data;
     uint256 numCandidates;
@@ -8,48 +8,46 @@ contract Simple{
     
     struct Candidate {
         address uid;
-        uint256 candidate_number;
-        string name;
         uint256 num;
         mapping (address => voter) voters;
     }
     
     struct voter {
         address user_address;
-        uint256 candidate_number;
+        address candidate_address;
         bool voted;
     }
     
-    mapping (uint256 => Candidate) candidates;
+    mapping (address => Candidate) candidates;
     mapping (address => voter) votes;
 
     
-    function vote (address user_address, uint256 candidate_number) public {
-        candidates[candidate_number].num = candidates[candidate_number].num + 1;
-        candidates[candidate_number].voters[user_address].user_address = user_address;
-        candidates[candidate_number].voters[user_address].voted = true;
+    function vote (address user_address, address candidate_address) public {
+        candidates[candidate_address].num = candidates[candidate_address].num + 1;
+        candidates[candidate_address].voters[user_address].user_address = user_address;
+        candidates[candidate_address].voters[user_address].voted = true;
         votes[user_address].voted = true;
-        votes[user_address].candidate_number = candidate_number;
+        votes[user_address].candidate_address = candidate_address;
         numvoted++;
     }
     
-    function addcandidate(address candidate_address, string name) public {
+    function addcandidate(address candidate_address) public {
         uint256 candidateID = numCandidates;
         candidateID = numCandidates++;
 
-        candidates[candidateID] = Candidate(candidate_address, candidateID, name, 0);
+        candidates[candidate_address] = Candidate(candidate_address, 0);
     }
 
     function addvoter(address user_address) public {
         uint256 voterID = numvoter;
         voterID = numvoter++;
 
-        votes[user_address] = voter(user_address, 0, false);
+        votes[user_address] = voter(user_address,user_address, false);
     }
     
-    function get_result_vote(address user_address) constant public returns(uint256){
+    function get_result_vote(address user_address) constant public returns(address){
         if (votes[user_address].voted == true){
-            return votes[user_address].candidate_number;
+            return votes[user_address].candidate_address;
         }
     }
         
@@ -58,10 +56,6 @@ contract Simple{
             return true;
         }
         return false;
-    }
-    
-    function getcandidate() constant public returns(address){
-        return candidates[0].uid;
     }
     
     function getNumOfvoted() constant public returns(uint256){
