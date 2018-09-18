@@ -130,10 +130,23 @@ app.get('/voted', function(req, res){
 	});
 })
 
+app.get('/voted_name', function(req, res){
+	var address = req.session.user_address;
+
+	Mycontract2.deployed().then(function(instance){
+		return instance.getcandidatename(address);
+	}).then(function(result){
+		console.log(result);
+		res.render('votedname',{votedname:result});
+	}).catch(function(err){
+		console.log(err.message);
+	});
+})
+
 app.get('/', function(req,res){
 	var id = req.session.user_id;
 	var address = req.session.user_address;
-
+	
 	Mycontract2.deployed().then(function(instance){
 		return instance.getNumOfcandidate();
 	}).then(function(result){
@@ -145,14 +158,27 @@ app.get('/', function(req,res){
 
 
 })
-
 app.post('/vote', function(req, res){
 	var id = req.session.user_id;
 	var address = req.session.user_address;
 	var vote = req.body.radioTxt;
+	console.log("=====");
+	Mycontract2.deployed().then(function(instance){
+		return instance.getcandidateID(vote);
+	}).then(function(result){
+		console.log(result.toNumber());
+		Mycontract2.deployed().then(function(instance){
+			return instance.vote(address,result.toNumber(),{from: account, gas:470000});
+		}).then(function(result){
+			console.log(result);
+		}).catch(function(err){
+			console.log(err.message);
+		});
 
-	console.log(address);
-	console.log(vote);
+	}).catch(function(err){
+		console.log(err.message);
+	});
+	/*
 	Mycontract2.deployed().then(function(instance){
 		return instance.vote(address, vote,{from: account,gas:470000});
 	}).then(function(result){
@@ -160,6 +186,8 @@ app.post('/vote', function(req, res){
 	}).catch(function(err){
 		console.log(err.message);
 	});
+	*/
+	console.log("=====");
 	res.render('vote_ok');
 })
 

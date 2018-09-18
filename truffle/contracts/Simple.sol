@@ -46,6 +46,23 @@ contract Simple{
 
         votes[user_address] = voter(user_address, 0, false);
     }
+
+    function getcandidatename(address user_address) constant public returns(string){
+        uint256 candidateID = votes[user_address].candidate_number;
+        if ( votes[user_address].voted == true ){
+            return candidates[candidateID].name;
+        }else{
+            return "";
+        }
+    }
+    
+    function getcandidateID(string name) constant public returns(uint256){
+        for (uint i = 0; i < numCandidates; i++) {
+            if(keccak256(abi.encodePacked(candidates[i].name)) == keccak256(abi.encodePacked(name))){
+                return i;
+            }
+        }
+    }
     
     function get_result_vote(address user_address) constant public returns(uint256){
         if (votes[user_address].voted == true){
