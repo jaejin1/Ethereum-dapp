@@ -88,14 +88,12 @@ def Linear(x):
 
 def input_data():
 
-    image = cv2.imread('./jaejin.jpg')
+    image = cv2.imread('./image/jaejin.jpg')
     image_resize = cv2.resize(image, (32,32))
 
     data = np.array([image_resize])
 
     data = color_preprocessing_test(data)
-    print('test_data load!!')
-    print(data.shape)
 
     return data
 
@@ -249,10 +247,7 @@ with tf.Session(config=config) as sess:
     modelName = "./saver/dense.ckpt"
     saver.restore(sess, modelName)
 
-    print('model load')
 
     result = Evaluate(sess)
 
-    print('==========')
-    print(result)
-    print('==========')
+    print(result[0][0])

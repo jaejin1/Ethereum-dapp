@@ -1,15 +1,20 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var passport = require("passport");
+var fileUpload = require('express-fileupload');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
 var session = require('express-session');
+var multer = require('multer');
+//var upload = multer({dest: 'upload/', limits: { fileSize: 5 * 1024 * 1024 } });
+
 var app = express();
 var contract = require("truffle-contract");
 var server = require("http").createServer(app);
 var io = require("socket.io")(server);
 var ArrayList = require("arraylist");
 var Web3 = require("web3");
+
 
 var MyContractJSON = require("../truffle/build/contracts/Simple.json");
 
@@ -53,49 +58,30 @@ console.log(network_version);
 var account = "0x6ea45f74c9803a9c3403c400975424e5825dfb70";
 var jaejin;
 
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+	    		test = file.fieldname + '.jpg';
 
-console.log("-----");
-///////////////////////////////////////////////
-passport.use(new LocalStrategy({
-  usernameField: 'username',
-  passwordField: 'password',
-  session: true,
-  passReqToCallback: true
-}, function (req, username, password, done) {
-  //connection.query('select * from solar_webserver where user_id in ('+ "'" +username + "'" +')',function(err,result){
-    //console.log(result);
-    //if(result && result.length > 0){
-    //  var userid = result[0].user_id;
-    //  var userpw = result[0].user_pw;
-    //  if(userpw == password){
-    //    return done(null,{
-    //      'user_id': userid
-    //    })
-    if (username == 'jaejin'){
-      if('1234' == password){
-        return done(null,{
-          'user_id': 'jaejin'
-        })
-      }else {
-        console.log('password error.');
-        return done(null, false)
-      }
-    }else{
-      console.log('dont have user.');
-      return done(null,false)
+			//testname = file.fieldname;
+			console.log('ang');
+      //cb(null, file.originalname);
+			cb(null, file.fieldname+'.jpg');
+
     }
-
-    console.log(err)
-
-
-}));
-
-passport.serializeUser(function (user, done) {
-  done(null, user)
-
+  }),
 });
-passport.deserializeUser(function (user, done) {
-  done(null, user);
+
+app.post('/upload', upload.fields([{name:'images'}]), function(req,res){
+	console.log(req.files);
+	
+});
+
+app.get('/upload',function(req,res){
+	res.render('fileupload',{})
 });
 
 /*
