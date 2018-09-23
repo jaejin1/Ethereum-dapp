@@ -6,7 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
 var session = require('express-session');
 var multer = require('multer');
-//var upload = multer({dest: 'upload/', limits: { fileSize: 5 * 1024 * 1024 } });
+var PythonShell = require('python-shell');
 
 var app = express();
 var contract = require("truffle-contract");
@@ -64,11 +64,7 @@ const upload = multer({
       cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-	    		test = file.fieldname + '.jpg';
 
-			//testname = file.fieldname;
-			console.log('ang');
-      //cb(null, file.originalname);
 			cb(null, file.fieldname+'.jpg');
 
     }
@@ -77,6 +73,21 @@ const upload = multer({
 
 app.post('/upload', upload.fields([{name:'images'}]), function(req,res){
 	console.log(req.files);
+	
+	PythonShell.run('test.py',
+		{
+			mode: 'text',
+			pythonPath: '/home/virtual/bin/python3.6',
+			pythonOptions: ['-u'],
+			scriptPath: '/home',
+		},function(err, results){
+			if(err) throw err;
+			if (results[0] > 0) {
+				res.render('upload_ok',{});
+			}else{
+				res.render('upload_fail',{});
+			}
+	});
 	
 });
 
@@ -189,6 +200,14 @@ app.post('/', function(req,res){
 
 app.get('/signup', function(req,res){
 	res.render('signup',{})
+})
+
+app.get('/upload_ok', function(req, res){
+	res.render('upload_ok',{});
+})
+
+app.get('/upload_fail', function(req, res){
+        res.render('upload_fail',{});
 })
 
 app.post('/signup_ok', function(req, res){

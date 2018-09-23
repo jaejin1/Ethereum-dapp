@@ -8,6 +8,8 @@ import cv2
 import numpy as np
 import os
 
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
 # Hyperparameter
 growth_k = 24
 nb_block = 2  # how many (dense block + Transition Layer) ?
@@ -88,7 +90,7 @@ def Linear(x):
 
 def input_data():
 
-    image = cv2.imread('./image/jaejin.jpg')
+    image = cv2.imread('/home/web/uploads/images.jpg')
     image_resize = cv2.resize(image, (32,32))
 
     data = np.array([image_resize])
@@ -244,7 +246,7 @@ with tf.Session(config=config) as sess:
 
 
 
-    modelName = "./saver/dense.ckpt"
+    modelName = "/home/saver/dense.ckpt"
     saver.restore(sess, modelName)
 
 
